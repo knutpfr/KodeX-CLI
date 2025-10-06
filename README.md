@@ -15,6 +15,11 @@ Ein Node.js-basiertes CLI-Tool zum Generieren von Boilerplate-Code aus JSON-Komp
 - 🚀 **Cross-Platform** - Funktioniert auf Linux, macOS, Windows
 - ⚡ **Automatische Erkennung** - Neue Komponenten werden automatisch erkannt
 
+## Screenshot
+
+<img width="720" height="557" alt="grafik" src="https://github.com/user-attachments/assets/63623094-89b1-458d-889a-cc57da008388" />
+
+
 ## Installation
 
 ```bash
