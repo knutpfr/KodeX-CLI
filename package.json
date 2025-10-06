@@ -1,0 +1,36 @@
+{
+  "name": "cli-component-builder",
+  "version": "1.0.0",
+  "description": "Node.js CLI tool for generating boilerplate code from JSON component files",
+  "main": "cli.js",
+  "scripts": {
+    "start": "node cli.js",
+    "build": "node cli.js build",
+    "list": "node cli.js list",
+    "init": "node cli.js init",
+    "config": "node cli.js config"
+  },
+  "keywords": [
+    "cli",
+    "boilerplate",
+    "components",
+    "generator"
+  ],
+  "author": "knutpfr",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/knutpfr/KodeX-CLI.git"
+  },
+  "homepage": "https://github.com/knutpfr/KodeX-CLI",
+  "bugs": {
+    "url": "https://github.com/knutpfr/KodeX-CLI/issues"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "enquirer": "^2.4.1"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

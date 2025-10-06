@@ -1,0 +1,6 @@
+{
+  "title": "CSS Sample Component",
+  "description": "Ein einfaches CSS-Beispiel",
+  "type": "css",
+  "content": "/* CSS Sample Component */\n\n.sample-component {\n  background: #f0f0f0;\n  padding: 20px;\n  border-radius: 5px;\n}\n\n.sample-component h1 {\n  color: #333;\n  font-size: 24px;\n}"
+}

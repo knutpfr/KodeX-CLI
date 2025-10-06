@@ -1,0 +1,38 @@
+{
+  "ui": {
+    "colors": {
+      "confirm": "#00ff00",
+      "cancel": "#ff0000",
+      "selected": "#00bcd4",
+      "unselected": "#666666"
+    },
+    "typeColors": {
+      "html": "#e34c26",
+      "css": "#1572b6", 
+      "js": "#f7df1e",
+      "javascript": "#f7df1e",
+      "typescript": "#3178c6",
+      "json": "#000000",
+      "xml": "#ff6600",
+      "php": "#777bb4",
+      "python": "#3776ab",
+      "java": "#ed8b00",
+      "go": "#00add8",
+      "rust": "#000000",
+      "c": "#a8b9cc",
+      "cpp": "#00599c",
+      "default": "#ffffff"
+    },
+    "controls": {
+      "select": ["space", "enter"],
+      "confirm": ["enter", "return"],
+      "cancel": ["escape", "backspace", "delete"],
+      "navigate": ["up", "down", "left", "right"]
+    }
+  },
+  "output": {
+    "bundleByDefault": false,
+    "createSubfolders": false,
+    "timestampFiles": false
+  }
+}
