@@ -1,0 +1,6 @@
+{
+  "title": "Simple Container",
+  "description": "Basic Container ohne Gruppierung",
+  "type": "html",
+  "content": "<div class=\"container\">\n  <header class=\"container-header\">\n    <h1>Willkommen</h1>\n    <p class=\"subtitle\">Dies ist ein einfacher Container</p>\n  </header>\n  <main class=\"container-content\">\n    <section>\n      <h2>Inhalt</h2>\n      <p>Hier kommt der Hauptinhalt rein.</p>\n    </section>\n  </main>\n</div>"
+}

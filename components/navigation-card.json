@@ -1,0 +1,7 @@
+{
+  "title": "Navigation Card",
+  "description": "Responsive Karte für Navigation oder Content",
+  "type": "html",
+  "group": "cards",
+  "content": "<article class=\"nav-card\">\n  <div class=\"card-header\">\n    <h3 class=\"card-title\">Feature Überschrift</h3>\n    <span class=\"card-badge\">Neu</span>\n  </div>\n  <div class=\"card-body\">\n    <p class=\"card-description\">\n      Diese Karte zeigt wichtige Informationen an und kann als\n      Navigationselement oder Content-Container verwendet werden.\n    </p>\n  </div>\n  <div class=\"card-footer\">\n    <a href=\"#\" class=\"card-link\">Mehr erfahren</a>\n  </div>\n</article>"
+}

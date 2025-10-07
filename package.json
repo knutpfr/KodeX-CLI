@@ -28,7 +28,8 @@
   },
   "dependencies": {
     "chalk": "^4.1.2",
-    "enquirer": "^2.4.1"
+    "enquirer": "^2.4.1",
+    "inquirer": "^8.2.4"
   },
   "engines": {
     "node": ">=14.0.0"

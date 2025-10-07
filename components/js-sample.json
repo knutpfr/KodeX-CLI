@@ -1,6 +1,0 @@
-{
-  "title": "JavaScript Sample Component",
-  "description": "Ein einfaches JavaScript-Beispiel",
-  "type": "js",
-  "content": "// JavaScript Sample Component\n\n// Einfache Funktion\nfunction sampleFunction() {\n  console.log('Hello from Sample Component!');\n}\n\n// Event Listener Beispiel\ndocument.addEventListener('DOMContentLoaded', function() {\n  console.log('Sample Component loaded');\n});"
-}

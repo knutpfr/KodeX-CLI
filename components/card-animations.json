@@ -1,0 +1,7 @@
+{
+  "title": "Card Animations",
+  "description": "CSS Animationen für Karten und Hover-Effekte",
+  "type": "css",
+  "group": "animations",
+  "content": "/* Card Base */\n.nav-card {\n  background: white;\n  border-radius: 12px;\n  padding: 24px;\n  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);\n  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);\n  position: relative;\n  overflow: hidden;\n}\n\n/* Hover Animation */\n.nav-card:hover {\n  transform: translateY(-8px);\n  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);\n}\n\n/* Card Header */\n.card-header {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  margin-bottom: 16px;\n}\n\n.card-title {\n  margin: 0;\n  color: #1a1a1a;\n  font-size: 18px;\n}\n\n.card-badge {\n  background: #ff6b6b;\n  color: white;\n  padding: 4px 8px;\n  border-radius: 6px;\n  font-size: 12px;\n  font-weight: 600;\n}\n\n/* Fade In Animation */\n@keyframes fadeInUp {\n  from {\n    opacity: 0;\n    transform: translateY(30px);\n  }\n  to {\n    opacity: 1;\n    transform: translateY(0);\n  }\n}\n\n.nav-card {\n  animation: fadeInUp 0.6s ease-out;\n}"
+}

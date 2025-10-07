@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { MultiSelect, Select } = require('enquirer');
+const inquirer = require('inquirer');
 const chalk = require('chalk');
 
 class ComponentBuilder {
@@ -124,7 +124,60 @@ class ComponentBuilder {
         return types.sort();
     }
 
-    // Interaktive Komponentenauswahl mit Kategorien
+    // Verfügbare Gruppen für ausgewählte Typen ermitteln
+    getAvailableGroups(selectedTypes) {
+        const groups = new Set();
+        
+        this.components
+            .filter(comp => selectedTypes.includes(comp.type))
+            .forEach(comp => {
+                if (comp.group) {
+                    groups.add(`${comp.type}:${comp.group}`);
+                }
+            });
+        
+        return Array.from(groups).map(groupKey => {
+            const [type, group] = groupKey.split(':');
+            return { type, group };
+        });
+    }
+
+    // Komponenten nach Gruppen strukturieren
+    getComponentsByGroup(selectedTypes, selectedGroups = null) {
+        const structure = {};
+        
+        this.components
+            .filter(comp => selectedTypes.includes(comp.type))
+            .forEach(comp => {
+                const type = comp.type;
+                const group = comp.group || null;
+                
+                // Wenn Gruppen ausgewählt wurden, nur diese berücksichtigen
+                if (selectedGroups && group && !selectedGroups.some(g => g.type === type && g.group === group)) {
+                    return;
+                }
+                
+                if (!structure[type]) {
+                    structure[type] = {};
+                }
+                
+                if (group) {
+                    if (!structure[type][group]) {
+                        structure[type][group] = [];
+                    }
+                    structure[type][group].push(comp);
+                } else {
+                    if (!structure[type]['_ungrouped']) {
+                        structure[type]['_ungrouped'] = [];
+                    }
+                    structure[type]['_ungrouped'].push(comp);
+                }
+            });
+        
+        return structure;
+    }
+
+    // Interaktive Komponentenauswahl mit Kategorien und optionalen Gruppen
     async selectComponents() {
         // Erste Auswahl: Kategorie (Typ) wählen
         const types = this.getAvailableTypes();
@@ -142,11 +195,11 @@ class ComponentBuilder {
         console.log(`\n${chalk.gray('┌─ Steuerung ─────────────────────────────────┐')}`);
         console.log(`${chalk.gray('│')} ${chalk.cyan('Space')} - Element auswählen/abwählen          ${chalk.gray('│')}`);
         console.log(`${chalk.gray('│')} ${chalk.green('Enter')} - Auswahl bestätigen                  ${chalk.gray('│')}`);
-        console.log(`${chalk.gray('│')} ${chalk.red('Esc')}   - Programm beenden                    ${chalk.gray('│')}`);
+        console.log(`${chalk.gray('│')} ${chalk.red('Ctrl+C')} - Programm beenden                  ${chalk.gray('│')}`);
         console.log(`${chalk.gray('│')} ${chalk.cyan('↑↓')}    - Navigation                          ${chalk.gray('│')}`);
         console.log(`${chalk.gray('└─────────────────────────────────────────────┘')}\n`);
 
-        // Wenn nur ein Typ vorhanden ist, direkt zu Komponenten
+        // Schritt 1: Kategorien auswählen
         let selectedTypes = types;
         if (types.length > 1) {
             const typeChoices = types.map(type => {
@@ -158,115 +211,167 @@ class ComponentBuilder {
                 };
             });
 
-            const typePrompt = new MultiSelect({
+            const { types: selectedTypesResult } = await inquirer.prompt([{
+                type: 'checkbox',
                 name: 'types',
-                message: 'Welche Kategorien möchtest du auswählen?',
+                message: 'Schritt 1/3: Welche Kategorien möchtest du auswählen?',
                 choices: typeChoices,
-                instructions: `
-${chalk.gray('Legende:')}
-  ${chalk.cyan('Space')} - Kategorie auswählen
-  ${chalk.green('Enter')} - Kategorien bestätigen
-  ${chalk.red('Esc')} - Programm schließen
-  ${chalk.cyan('↑↓')} - Steuerung`,
-                footer() {
-                    const selected = this.selected.length;
-                    return chalk.cyan(`[${selected} von ${types.length} Kategorien ausgewählt]`);
-                },
-                result(names) {
-                    return Object.values(this.map(names));
+                default: types, // Alle standardmäßig ausgewählt
+                validate: (input) => {
+                    return input.length > 0 ? true : 'Bitte wähle mindestens eine Kategorie aus.';
                 }
-            });
+            }]);
 
-            try {
-                selectedTypes = await typePrompt.run();
-                if (selectedTypes.length === 0) {
-                    console.log('\n❌ Keine Kategorien ausgewählt');
-                    return [];
+            selectedTypes = selectedTypesResult;
+        }
+
+        // Schritt 2: Gruppen auswählen (falls vorhanden)
+        const availableGroups = this.getAvailableGroups(selectedTypes);
+        let selectedGroups = null;
+
+        if (availableGroups.length > 0) {
+            console.log(`\n✨ ${chalk.cyan(availableGroups.length)} Gruppen gefunden`);
+            
+            const groupChoices = [
+                {
+                    name: chalk.white('✓ Alle Gruppen einschließen'),
+                    value: 'all'
+                },
+                ...availableGroups.map(({ type, group }) => {
+                    const typeColor = this.getTypeColor(type);
+                    const componentsInGroup = this.components.filter(c => c.type === type && c.group === group).length;
+                    return {
+                        name: `${this.colorText(type.toUpperCase(), typeColor)} › ${chalk.white(group)} (${componentsInGroup} Komponenten)`,
+                        value: { type, group }
+                    };
+                })
+            ];
+
+            const { groups } = await inquirer.prompt([{
+                type: 'checkbox',
+                name: 'groups',
+                message: 'Schritt 2/3: Welche Gruppen möchtest du einschließen?',
+                choices: groupChoices,
+                default: ['all'], // Alle standardmäßig ausgewählt
+                validate: (input) => {
+                    return input.length > 0 ? true : 'Bitte wähle mindestens eine Gruppe aus.';
                 }
-            } catch (error) {
-                console.log('\n❌ Programm beendet');
-                process.exit(0);
+            }]);
+
+            // Wenn "all" nicht ausgewählt wurde, nur spezifische Gruppen verwenden
+            if (!groups.includes('all')) {
+                selectedGroups = groups.filter(g => g !== 'all');
             }
         }
 
-        // Zweite Auswahl: Komponenten aus gewählten Kategorien
+        // Schritt 3: Komponenten mit robustem inquirer System auswählen
+        return await this.selectComponentsWithInquirer(selectedTypes, selectedGroups);
+    }
+
+    // Robuste Komponentenauswahl mit inquirer
+    async selectComponentsWithInquirer(selectedTypes, selectedGroups) {
+        const componentStructure = this.getComponentsByGroup(selectedTypes, selectedGroups);
         const choices = [];
-        selectedTypes.forEach(type => {
+        const componentMap = new Map();
+        const groupMap = new Map();
+
+        // Choices für inquirer erstellen
+        Object.entries(componentStructure).forEach(([type, groups]) => {
             const typeColor = this.getTypeColor(type);
             
-            // Kategorie-Header hinzufügen
-            choices.push({
-                name: this.colorText(`\n${type.toUpperCase()}`, typeColor),
-                disabled: true,
-                role: 'separator'
-            });
-            
-            // Komponenten dieser Kategorie hinzufügen
-            const componentsOfType = this.components.filter(comp => comp.type === type);
-            componentsOfType.forEach(comp => {
-                choices.push({
-                    name: `${comp.title} - ${chalk.gray(comp.description)}`,
-                    value: comp
+            // Kategorie-Header (Sprache) - nur bei mehreren Sprachen
+            if (selectedTypes.length > 1) {
+                choices.push(new inquirer.Separator(`\n${this.colorText(`── ${type.toUpperCase()} ──`, typeColor)}`));
+            }
+
+            Object.entries(groups).forEach(([groupName, components]) => {
+                // Gruppen-Header für echte Gruppen
+                if (groupName !== '_ungrouped') {
+                    const groupKey = `group_${type}_${groupName}`;
+                    groupMap.set(groupKey, components);
+                    
+                    choices.push({
+                        name: `${this.colorText(`📁 ${groupName.toUpperCase()}`, typeColor)} ${chalk.gray(`(${components.length} Komponenten)`)}`,
+                        value: groupKey,
+                        short: `Gruppe: ${groupName}`
+                    });
+                }
+
+                // Komponenten hinzufügen
+                components.forEach((comp, index) => {
+                    const isGrouped = groupName !== '_ungrouped';
+                    const prefix = isGrouped ? '  ' : '';
+                    const bullet = this.colorText('•', typeColor);
+                    
+                    const compKey = `comp_${type}_${groupName}_${index}`;
+                    componentMap.set(compKey, comp);
+                    
+                    choices.push({
+                        name: `${prefix}${bullet} ${comp.title} - ${chalk.gray(comp.description)}`,
+                        value: compKey,
+                        short: comp.title
+                    });
                 });
             });
         });
 
-        const componentPrompt = new MultiSelect({
-            name: 'components',
-            message: 'Welche Komponenten möchtest du verwenden?',
+        // Inquirer Prompt für Komponentenauswahl
+        const { selectedItems } = await inquirer.prompt([{
+            type: 'checkbox',
+            name: 'selectedItems',
+            message: 'Schritt 3/3: Welche Komponenten möchtest du verwenden?',
             choices: choices,
-            instructions: `
-${chalk.gray('Legende:')}
-  ${chalk.cyan('Space')} - Komponente auswählen
-  ${chalk.green('Enter')} - Komponenten bestätigen
-  ${chalk.red('Esc')} - Programm schließen
-  ${chalk.cyan('↑↓')} - Steuerung`,
-            footer() {
-                const totalComponents = choices.filter(c => !c.disabled).length;
-                return chalk.cyan(`[${this.selected.length} von ${totalComponents} Komponenten ausgewählt]`);
-            },
-            result(names) {
-                return Object.values(this.map(names));
+            pageSize: 15, // Mehr Items pro Seite anzeigen
+            validate: (input) => {
+                return input.length > 0 ? true : 'Bitte wähle mindestens eine Komponente oder Gruppe aus.';
+            }
+        }]);
+
+        // Ausgewählte Items verarbeiten
+        const finalComponents = [];
+        let componentIndex = 0; // Eindeutiger Index für jede Komponente
+
+        selectedItems.forEach(itemKey => {
+            if (itemKey.startsWith('group_')) {
+                // Gruppe ausgewählt - alle Komponenten hinzufügen
+                const components = groupMap.get(itemKey);
+                if (components) {
+                    components.forEach(comp => {
+                        // Jede Komponente bekommt einen eindeutigen Index
+                        finalComponents.push({
+                            ...comp,
+                            _uniqueId: componentIndex++
+                        });
+                    });
+                    console.log(`✅ Gruppe ausgewählt: ${chalk.green(components.length)} Komponenten hinzugefügt`);
+                }
+            } else if (itemKey.startsWith('comp_')) {
+                // Einzelne Komponente ausgewählt
+                const comp = componentMap.get(itemKey);
+                if (comp) {
+                    // Jede Komponente bekommt einen eindeutigen Index
+                    finalComponents.push({
+                        ...comp,
+                        _uniqueId: componentIndex++
+                    });
+                }
             }
         });
 
-        try {
-            const selected = await componentPrompt.run();
-            return selected;
-        } catch (error) {
-            console.log('\n❌ Programm beendet');
-            process.exit(0);
-        }
+        console.log(`\n🎉 ${chalk.green(finalComponents.length)} Komponenten insgesamt ausgewählt`);
+        return finalComponents;
     }
 
     // Bundle-Option abfragen
     async askForBundle() {
-        const prompt = new Select({
+        const { bundle } = await inquirer.prompt([{
+            type: 'confirm',
             name: 'bundle',
-            message: 'Dateien nach Typ bündeln?',
-            choices: [
-                { 
-                    name: chalk.green('✓ Ja - Alle Dateien gleichen Typs zusammenfassen'), 
-                    value: true 
-                },
-                { 
-                    name: chalk.white('✗ Nein - Separate Dateien erstellen'), 
-                    value: false 
-                }
-            ],
-            instructions: `
-${chalk.gray('Legende:')}
-  ${chalk.cyan('↑↓')} - Navigation
-  ${chalk.green('Enter')} - Bestätigen
-  ${chalk.red('Esc')} - Programm schließen`
-        });
+            message: 'Möchtest du die Dateien nach Typ bündeln?',
+            default: false
+        }]);
 
-        try {
-            return await prompt.run();
-        } catch (error) {
-            console.log('\n❌ Programm beendet');
-            process.exit(0);
-        }
+        return bundle;
     }
 
     // Dateien generieren
@@ -288,11 +393,15 @@ ${chalk.gray('Legende:')}
         const generatedFiles = [];
 
         components.forEach(comp => {
-            const fileName = this.generateFileName(comp.title, comp.type);
-            const filePath = path.join(this.distDir, fileName);
+            // Eindeutigen Dateinamen erstellen (mit Index falls identische Titel)
+            const uniqueFileName = comp._uniqueId !== undefined 
+                ? `${comp.title.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}-${comp._uniqueId}.${comp.type}`
+                : this.generateFileName(comp.title, comp.type);
+                
+            const filePath = path.join(this.distDir, uniqueFileName);
             
             fs.writeFileSync(filePath, comp.content, 'utf8');
-            generatedFiles.push(fileName);
+            generatedFiles.push(uniqueFileName);
         });
 
         console.log('\n✅ Separate Dateien erstellt:');
@@ -318,9 +427,9 @@ ${chalk.gray('Legende:')}
             const fileName = `bundle.${type}`;
             const filePath = path.join(this.distDir, fileName);
             
-            // Inhalte kombinieren mit Kommentaren
+            // Inhalte kombinieren mit Kommentaren (auch identische Komponenten)
             const bundledContent = comps.map(comp => 
-                `/* ${comp.title} - ${comp.description} */\n${comp.content}`
+                `/* ${comp.title} - ${comp.description} ${comp._uniqueId !== undefined ? `(ID: ${comp._uniqueId})` : ''} */\n${comp.content}`
             ).join('\n\n');
             
             fs.writeFileSync(filePath, bundledContent, 'utf8');
@@ -354,13 +463,39 @@ ${chalk.gray('Legende:')}
             console.log(`\n🏷️  ${this.colorText(type.toUpperCase(), typeColor)}`);
             
             const compsOfType = this.components.filter(comp => comp.type === type);
+            
+            // Nach Gruppen organisieren
+            const grouped = {};
             compsOfType.forEach(comp => {
-                console.log(`   ${this.colorText('•', typeColor)} ${comp.title}`);
-                console.log(`     ${chalk.gray(comp.description)}`);
+                const group = comp.group || '_ungrouped';
+                if (!grouped[group]) grouped[group] = [];
+                grouped[group].push(comp);
+            });
+
+            Object.entries(grouped).forEach(([groupName, components]) => {
+                if (groupName !== '_ungrouped') {
+                    console.log(`   ${chalk.gray('└─')} ${chalk.white(groupName)}`);
+                }
+                
+                components.forEach(comp => {
+                    const prefix = groupName !== '_ungrouped' ? '     ' : '   ';
+                    console.log(`${prefix}${this.colorText('•', typeColor)} ${comp.title}`);
+                    console.log(`${prefix}  ${chalk.gray(comp.description)}`);
+                });
             });
         });
 
         console.log(`\n📊 Gesamt: ${chalk.cyan(this.components.length.toString())} Komponenten in ${chalk.cyan(types.length.toString())} Kategorien`);
+        
+        // Gruppenzählung
+        const totalGroups = new Set();
+        this.components.forEach(comp => {
+            if (comp.group) totalGroups.add(`${comp.type}:${comp.group}`);
+        });
+        
+        if (totalGroups.size > 0) {
+            console.log(`🗂️  ${chalk.cyan(totalGroups.size.toString())} Gruppen verfügbar`);
+        }
         
         // Konfigurationshilfe
         console.log(`\n⚙️  Konfiguration: ${chalk.cyan('config.json')} bearbeiten um Farben anzupassen`);

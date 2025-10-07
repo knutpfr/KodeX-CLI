@@ -1,0 +1,7 @@
+{
+  "title": "Primary Button",
+  "description": "Moderner Primary Button mit Hover-Effekt",
+  "type": "html",
+  "group": "buttons",
+  "content": "<button class=\"btn btn-primary\">\n  <span class=\"btn-text\">Klick mich!</span>\n  <span class=\"btn-icon\">→</span>\n</button>"
+}

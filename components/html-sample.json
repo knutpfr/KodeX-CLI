@@ -1,6 +1,0 @@
-{
-  "title": "HTML Sample Component",
-  "description": "Ein einfaches HTML-Beispiel",
-  "type": "html",
-  "content": "<!-- HTML Sample Component -->\n<div class=\"sample-component\">\n  <h1>Sample HTML</h1>\n  <p>Dies ist ein HTML-Beispiel.</p>\n</div>"
-}

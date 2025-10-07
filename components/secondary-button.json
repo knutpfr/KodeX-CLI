@@ -1,0 +1,7 @@
+{
+  "title": "Secondary Button",
+  "description": "Outline Button für sekundäre Aktionen",
+  "type": "html",
+  "group": "buttons",
+  "content": "<button class=\"btn btn-secondary\" type=\"button\">\n  <svg class=\"btn-icon\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\">\n    <path d=\"M12 2L2 7v10c0 5.55 3.84 10 9 10s9-4.45 9-10V7l-10-5z\"/>\n  </svg>\n  Sicher speichern\n</button>"
+}

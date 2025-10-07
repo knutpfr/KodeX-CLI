@@ -1,0 +1,7 @@
+{
+  "title": "Example Component Template",
+  "description": "Template für neue Komponenten - kopiere diese Struktur",
+  "type": "html",
+  "group": "examples",
+  "content": "<!-- Hier kommt dein HTML/CSS/JS Code -->\n<div class=\"example-component\">\n  <h2>Mein Component</h2>\n  <p>Beschreibung des Components</p>\n</div>"
+}

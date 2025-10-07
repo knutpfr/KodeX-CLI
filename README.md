@@ -1,53 +1,82 @@
-# KodeX CLI - Component Builder
+# KodeX CLI 🚀
 
-Ein Node.js-basiertes CLI-Tool zum Generieren von Boilerplate-Code aus JSON-Komponenten.
+Ein intelligenter CLI-Tool zum Verwalten und Bündeln deiner Code-Komponenten. Organisiere HTML, CSS und JavaScript Snippets in einer strukturierten JSON-basierten Bibliothek und generiere daraus Bundle-Dateien oder separate Komponenten.
 
 **Entwickelt von [@knutpfr](https://github.com/knutpfr)**  
 **Repository: [KodeX-CLI](https://github.com/knutpfr/KodeX-CLI)**
 
-## Features
+## ✨ Features
 
-- 🔧 **Modulares Komponentensystem** - JSON-basierte Komponenten
-- 🎯 **Interaktive Auswahl** - Multi-Select mit enquirer
-- 🎨 **Anpassbare Farben** - Konfigurierbare Farben für verschiedene Dateitypen
-- ⌨️ **Intuitive Steuerung** - Enter/Space für Auswahl, Esc/Backspace/Delete für Zurück
-- 📦 **Bundle-Option** - Dateien nach Typ zusammenfassen
-- 🚀 **Cross-Platform** - Funktioniert auf Linux, macOS, Windows
-- ⚡ **Automatische Erkennung** - Neue Komponenten werden automatisch erkannt
+### 🎯 **Komponentenverwaltung**
+- **JSON-basierte Komponenten** - Einfache Struktur für Code-Snippets
+- **Multi-Language Support** - HTML, CSS, JavaScript (erweiterbar)
+- **Gruppierung** - Optionale Kategorisierung von Komponenten
+- **Beispiel-Template** - Vorlage für neue Komponenten
 
-## Installation
+### 🎨 **Professionelle CLI-Navigation**
+- **Pfeiltasten-Navigation** - Intuitive Bedienung wie ein echtes CLI-Tool
+- **Checkbox-Interface** - Mehrfachauswahl mit Space-Taste
+- **Drei-Schritt-Prozess** - Kategorien → Gruppen → Komponenten
+- **Intelligente Gruppierung** - Eine Gruppe auswählen = alle Komponenten
 
+### 📦 **Flexible Ausgabe**
+- **Bundle-Modus** - Alle Dateien gleichen Typs in einer Datei
+- **Separate Dateien** - Jede Komponente als eigene Datei
+- **Duplikat-Support** - Alle ausgewählten Komponenten werden berücksichtigt
+- **Eindeutige Dateinamen** - Automatische ID-Vergabe bei Duplikaten
+
+### 🛠️ **Developer Experience**
+- **Farbige Ausgabe** - Typ-spezifische Farbkodierung
+- **Benutzerfreundliche Steuerung** - Klare Anweisungen und Feedback
+- **Fehlerbehandlung** - Robuste Validierung und Error Messages
+- **Konfigurierbar** - Anpassbare Farben über config.json
+
+## 📋 Voraussetzungen
+
+- **Node.js** (Version 14 oder höher)
+- **npm** (normalerweise mit Node.js installiert)
+
+## 🚀 Installation & Setup
+
+### 1. Repository klonen
+```bash
+git clone https://github.com/knutpfr/KodeX-CLI.git
+cd KodeX-CLI
+```
+
+### 2. Dependencies installieren
 ```bash
 npm install
 ```
 
-## Verwendung
-
-### Komponenten generieren (Standard)
+### 3. CLI-Tool starten
 ```bash
 npm start
-# oder
-node cli.js
 ```
 
-### Alle Komponenten auflisten
+## 📖 Getting Started
+
+### Demo-Komponenten verwenden
+Das Projekt enthält vorgefertigte Demo-Komponenten zum Ausprobieren:
+
 ```bash
-npm run list
-# oder
-node cli.js list
+npm start  # Startet mit Demo-Komponenten
 ```
 
-### Projekt initialisieren
-```bash
-node cli.js init
-```
+### Eigene Komponenten erstellen
+1. **Demo-Komponenten löschen** (optional):
+   ```bash
+   # Windows PowerShell
+   Remove-Item "components\*.json" -Exclude "example-template.json"
+   
+   # macOS/Linux
+   find components -name "*.json" ! -name "example-template.json" -delete
+   ```
 
-### Konfiguration anzeigen
-```bash
-npm run config
-# oder
-node cli.js config
-```
+2. **Neue Komponente erstellen**:
+   - Kopiere `components/example-template.json`
+   - Benenne sie um (z.B. `my-button.json`)
+   - Bearbeite die JSON-Struktur
 
 ### Farben anpassen
 Bearbeite `config.json` um die Farben anzupassen:
