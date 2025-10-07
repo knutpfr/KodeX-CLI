@@ -13,11 +13,20 @@ Ein intelligenter CLI-Tool zum Verwalten und Bündeln deiner Code-Komponenten. O
 - **Gruppierung** - Optionale Kategorisierung von Komponenten
 - **Beispiel-Template** - Vorlage für neue Komponenten
 
+<<<<<<< HEAD
 ### 🎨 **Professionelle CLI-Navigation**
 - **Pfeiltasten-Navigation** - Intuitive Bedienung wie ein echtes CLI-Tool
 - **Checkbox-Interface** - Mehrfachauswahl mit Space-Taste
 - **Drei-Schritt-Prozess** - Kategorien → Gruppen → Komponenten
 - **Intelligente Gruppierung** - Eine Gruppe auswählen = alle Komponenten
+=======
+## Screenshot
+
+<img width="720" height="557" alt="grafik" src="https://github.com/user-attachments/assets/63623094-89b1-458d-889a-cc57da008388" />
+
+
+## Installation
+>>>>>>> 3b24f11b60abce96da39dc4a45afcc4b82bc022d
 
 ### 📦 **Flexible Ausgabe**
 - **Bundle-Modus** - Alle Dateien gleichen Typs in einer Datei
