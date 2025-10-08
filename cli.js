@@ -10,11 +10,13 @@ class ComponentBuilder {
         this.componentsDir = path.join(process.cwd(), 'components');
         this.distDir = path.join(process.cwd(), 'dist');
         this.configPath = path.join(process.cwd(), 'config.json');
+        this.localesDir = path.join(__dirname, 'locales');
         this.components = [];
         this.config = this.loadConfig();
+        this.locale = this.loadLocale();
     }
 
-    // Konfiguration laden
+    // Load configuration
     loadConfig() {
         try {
             if (fs.existsSync(this.configPath)) {
@@ -22,30 +24,103 @@ class ComponentBuilder {
                 return JSON.parse(configData);
             }
         } catch (error) {
-            console.log('⚠️  Fehler beim Laden der Konfiguration, verwende Standardwerte');
+            console.log(this.t('errors.configLoadFailed'));
         }
         
-        // Fallback zu Standardkonfiguration
+        // Default configuration fallback
         return {
+            language: "en",
             ui: {
                 colors: {
                     confirm: "#00ff00",
                     cancel: "#ff0000", 
                     selected: "#00bcd4",
-                    unselected: "#666666"
+                    unselected: "#666666",
+                    primary: "#00bcd4",
+                    secondary: "#ffffff",
+                    success: "#00ff00",
+                    error: "#ff0000",
+                    warning: "#ffa500",
+                    info: "#0080ff"
                 },
                 typeColors: {
                     html: "#e34c26",
                     css: "#1572b6",
                     js: "#f7df1e",
                     javascript: "#f7df1e",
+                    typescript: "#3178c6",
+                    json: "#000000",
+                    xml: "#ff6600",
+                    php: "#777bb4",
+                    python: "#3776ab",
+                    java: "#ed8b00",
+                    go: "#00add8",
+                    rust: "#000000",
+                    c: "#a8b9cc",
+                    cpp: "#00599c",
                     default: "#ffffff"
                 }
+            },
+            output: {
+                bundleByDefault: false,
+                createSubfolders: false,
+                timestampFiles: false
             }
         };
     }
 
-    // Farbe für Typ abrufen
+    // Load locale file
+    loadLocale() {
+        const language = this.config.language || 'en';
+        const localePath = path.join(this.localesDir, `${language}.json`);
+        
+        try {
+            if (fs.existsSync(localePath)) {
+                const localeData = fs.readFileSync(localePath, 'utf8');
+                return JSON.parse(localeData);
+            }
+        } catch (error) {
+            console.warn(`Warning: Could not load locale ${language}, falling back to English`);
+        }
+        
+        // Fallback to English
+        try {
+            const fallbackPath = path.join(this.localesDir, 'en.json');
+            if (fs.existsSync(fallbackPath)) {
+                const localeData = fs.readFileSync(fallbackPath, 'utf8');
+                return JSON.parse(localeData);
+            }
+        } catch (error) {
+            console.error('Could not load any locale files');
+        }
+        
+        return {};
+    }
+
+    // Translate function with placeholder replacement
+    t(key, replacements = {}) {
+        const keys = key.split('.');
+        let value = this.locale;
+        
+        for (const k of keys) {
+            if (value && typeof value === 'object' && k in value) {
+                value = value[k];
+            } else {
+                return key; // Return key if translation not found
+            }
+        }
+        
+        // Replace placeholders
+        if (typeof value === 'string') {
+            return value.replace(/\{(\w+)\}/g, (match, placeholder) => {
+                return replacements[placeholder] || match;
+            });
+        }
+        
+        return value || key;
+    }
+
+    // Get type color
     getTypeColor(type) {
         const typeColorMap = {
             html: 'red',
@@ -68,7 +143,7 @@ class ComponentBuilder {
         return typeColorMap[type.toLowerCase()] || typeColorMap.default;
     }
 
-    // Farbiges Terminal-Text erstellen mit chalk
+    // Create colorized terminal text with chalk
     colorText(text, colorName) {
         switch(colorName) {
             case 'red': return chalk.red(text);
@@ -86,11 +161,41 @@ class ComponentBuilder {
         }
     }
 
-    // Alle JSON-Komponenten laden
+    // Create formatted controls box with proper alignment
+    createControlsBox() {
+        const boxWidth = 45;
+        const controls = [
+            { key: this.t('ui.controls.space'), action: this.t('ui.controls.selectElement'), color: 'cyan' },
+            { key: this.t('ui.controls.enter'), action: this.t('ui.controls.confirmSelection'), color: 'green' },
+            { key: this.t('ui.controls.ctrlc'), action: this.t('ui.controls.cancel'), color: 'red' },
+            { key: this.t('ui.controls.arrows'), action: this.t('ui.controls.navigate'), color: 'cyan' }
+        ];
+
+        // Create title with padding
+        const title = this.t('ui.controls.title');
+        const titlePadding = Math.max(0, Math.floor((boxWidth - title.length - 4) / 2));
+        const titleLine = `┌─ ${title} ${'─'.repeat(titlePadding)}${'─'.repeat(boxWidth - title.length - titlePadding - 4)}┐`;
+
+        let result = chalk.gray(titleLine) + '\n';
+
+        controls.forEach(control => {
+            const keyText = this.colorText(control.key, control.color);
+            const keyLength = control.key.length; // Length without color codes
+            const actionText = control.action;
+            const spacing = boxWidth - keyLength - actionText.length - 5; // 5 for "│ ", " - ", "│"
+            
+            result += chalk.gray('│') + ' ' + keyText + ' - ' + actionText + ' '.repeat(Math.max(0, spacing)) + chalk.gray('│') + '\n';
+        });
+
+        result += chalk.gray('└' + '─'.repeat(boxWidth - 1) + '┘');
+        return result;
+    }
+
+    // Load all JSON components
     loadComponents() {
         try {
             if (!fs.existsSync(this.componentsDir)) {
-                console.log('❌ components/ Ordner nicht gefunden!');
+                console.log(this.t('errors.componentsNotFound'));
                 return false;
             }
 
@@ -98,7 +203,7 @@ class ComponentBuilder {
                 .filter(file => file.endsWith('.json'));
 
             if (files.length === 0) {
-                console.log('❌ Keine JSON-Komponenten gefunden!');
+                console.log(this.t('errors.noComponentsFound'));
                 return false;
             }
 
@@ -113,18 +218,18 @@ class ComponentBuilder {
 
             return true;
         } catch (error) {
-            console.log('❌ Fehler beim Laden der Komponenten:', error.message);
+            console.log(this.t('errors.componentLoadFailed'), error.message);
             return false;
         }
     }
 
-    // Verfügbare Typen ermitteln
+    // Get available types
     getAvailableTypes() {
         const types = [...new Set(this.components.map(comp => comp.type))];
         return types.sort();
     }
 
-    // Verfügbare Gruppen für ausgewählte Typen ermitteln
+    // Get available groups for selected types
     getAvailableGroups(selectedTypes) {
         const groups = new Set();
         
@@ -142,7 +247,7 @@ class ComponentBuilder {
         });
     }
 
-    // Komponenten nach Gruppen strukturieren
+    // Structure components by groups
     getComponentsByGroup(selectedTypes, selectedGroups = null) {
         const structure = {};
         
@@ -152,7 +257,7 @@ class ComponentBuilder {
                 const type = comp.type;
                 const group = comp.group || null;
                 
-                // Wenn Gruppen ausgewählt wurden, nur diese berücksichtigen
+                // If groups are selected, only consider these
                 if (selectedGroups && group && !selectedGroups.some(g => g.type === type && g.group === group)) {
                     return;
                 }
@@ -177,36 +282,34 @@ class ComponentBuilder {
         return structure;
     }
 
-    // Interaktive Komponentenauswahl mit Kategorien und optionalen Gruppen
+    // Interactive component selection with categories and optional groups
     async selectComponents() {
-        // Erste Auswahl: Kategorie (Typ) wählen
+        // First selection: Choose category (type)
         const types = this.getAvailableTypes();
         
         if (types.length === 0) {
-            console.log('❌ Keine Komponenten verfügbar');
+            console.log(this.t('errors.noComponentsAvailable'));
             return [];
         }
 
-        // Startup-Informationen anzeigen
-        console.log(`📊 ${chalk.cyan(types.length)} Kategorien erkannt: ${types.map(t => this.colorText(t.toUpperCase(), this.getTypeColor(t))).join(', ')}`);
-        console.log(`📦 ${chalk.cyan(this.components.length)} Komponenten insgesamt geladen`);
+        // Show startup information
+        console.log(this.t('messages.categoriesDetected', {
+            count: types.length,
+            types: types.map(t => this.colorText(t.toUpperCase(), this.getTypeColor(t))).join(', ')
+        }));
+        console.log(this.t('messages.componentsLoaded', { count: this.components.length }));
         
-        // Steuerungsübersicht anzeigen
-        console.log(`\n${chalk.gray('┌─ Steuerung ─────────────────────────────────┐')}`);
-        console.log(`${chalk.gray('│')} ${chalk.cyan('Space')} - Element auswählen/abwählen          ${chalk.gray('│')}`);
-        console.log(`${chalk.gray('│')} ${chalk.green('Enter')} - Auswahl bestätigen                  ${chalk.gray('│')}`);
-        console.log(`${chalk.gray('│')} ${chalk.red('Ctrl+C')} - Programm beenden                  ${chalk.gray('│')}`);
-        console.log(`${chalk.gray('│')} ${chalk.cyan('↑↓')}    - Navigation                          ${chalk.gray('│')}`);
-        console.log(`${chalk.gray('└─────────────────────────────────────────────┘')}\n`);
+        // Show control overview with proper formatting
+        console.log('\n' + this.createControlsBox() + '\n');
 
-        // Schritt 1: Kategorien auswählen
+        // Step 1: Select categories
         let selectedTypes = types;
         if (types.length > 1) {
             const typeChoices = types.map(type => {
                 const count = this.components.filter(c => c.type === type).length;
                 const color = this.getTypeColor(type);
                 return {
-                    name: this.colorText(`${type.toUpperCase()}`, color) + ` (${count} Komponenten)`,
+                    name: this.colorText(`${type.toUpperCase()}`, color) + ` (${count} ${this.t('ui.components')})`,
                     value: type
                 };
             });
@@ -214,34 +317,34 @@ class ComponentBuilder {
             const { types: selectedTypesResult } = await inquirer.prompt([{
                 type: 'checkbox',
                 name: 'types',
-                message: 'Schritt 1/3: Welche Kategorien möchtest du auswählen?',
+                message: this.t('prompts.categoriesPrompt'),
                 choices: typeChoices,
-                default: types, // Alle standardmäßig ausgewählt
+                default: types, // All selected by default
                 validate: (input) => {
-                    return input.length > 0 ? true : 'Bitte wähle mindestens eine Kategorie aus.';
+                    return input.length > 0 ? true : this.t('prompts.categoriesValidation');
                 }
             }]);
 
             selectedTypes = selectedTypesResult;
         }
 
-        // Schritt 2: Gruppen auswählen (falls vorhanden)
+        // Step 2: Select groups (if available)
         const availableGroups = this.getAvailableGroups(selectedTypes);
         let selectedGroups = null;
 
         if (availableGroups.length > 0) {
-            console.log(`\n✨ ${chalk.cyan(availableGroups.length)} Gruppen gefunden`);
+            console.log(`\n${this.t('messages.groupsFound', { count: availableGroups.length })}`);
             
             const groupChoices = [
                 {
-                    name: chalk.white('✓ Alle Gruppen einschließen'),
+                    name: chalk.white(this.t('prompts.allGroups')),
                     value: 'all'
                 },
                 ...availableGroups.map(({ type, group }) => {
                     const typeColor = this.getTypeColor(type);
                     const componentsInGroup = this.components.filter(c => c.type === type && c.group === group).length;
                     return {
-                        name: `${this.colorText(type.toUpperCase(), typeColor)} › ${chalk.white(group)} (${componentsInGroup} Komponenten)`,
+                        name: `${this.colorText(type.toUpperCase(), typeColor)} › ${chalk.white(group)} (${componentsInGroup} ${this.t('ui.components')})`,
                         value: { type, group }
                     };
                 })
@@ -250,54 +353,54 @@ class ComponentBuilder {
             const { groups } = await inquirer.prompt([{
                 type: 'checkbox',
                 name: 'groups',
-                message: 'Schritt 2/3: Welche Gruppen möchtest du einschließen?',
+                message: this.t('prompts.groupsPrompt'),
                 choices: groupChoices,
-                default: ['all'], // Alle standardmäßig ausgewählt
+                default: ['all'], // All selected by default
                 validate: (input) => {
-                    return input.length > 0 ? true : 'Bitte wähle mindestens eine Gruppe aus.';
+                    return input.length > 0 ? true : this.t('prompts.groupsValidation');
                 }
             }]);
 
-            // Wenn "all" nicht ausgewählt wurde, nur spezifische Gruppen verwenden
+            // If "all" is not selected, use only specific groups
             if (!groups.includes('all')) {
                 selectedGroups = groups.filter(g => g !== 'all');
             }
         }
 
-        // Schritt 3: Komponenten mit robustem inquirer System auswählen
+        // Step 3: Select components with robust inquirer system
         return await this.selectComponentsWithInquirer(selectedTypes, selectedGroups);
     }
 
-    // Robuste Komponentenauswahl mit inquirer
+    // Robust component selection with inquirer
     async selectComponentsWithInquirer(selectedTypes, selectedGroups) {
         const componentStructure = this.getComponentsByGroup(selectedTypes, selectedGroups);
         const choices = [];
         const componentMap = new Map();
         const groupMap = new Map();
 
-        // Choices für inquirer erstellen
+        // Create choices for inquirer
         Object.entries(componentStructure).forEach(([type, groups]) => {
             const typeColor = this.getTypeColor(type);
             
-            // Kategorie-Header (Sprache) - nur bei mehreren Sprachen
+            // Category header (language) - only with multiple languages
             if (selectedTypes.length > 1) {
                 choices.push(new inquirer.Separator(`\n${this.colorText(`── ${type.toUpperCase()} ──`, typeColor)}`));
             }
 
             Object.entries(groups).forEach(([groupName, components]) => {
-                // Gruppen-Header für echte Gruppen
+                // Group header for real groups
                 if (groupName !== '_ungrouped') {
                     const groupKey = `group_${type}_${groupName}`;
                     groupMap.set(groupKey, components);
                     
                     choices.push({
-                        name: `${this.colorText(`📁 ${groupName.toUpperCase()}`, typeColor)} ${chalk.gray(`(${components.length} Komponenten)`)}`,
+                        name: `${this.colorText(`📁 ${groupName.toUpperCase()}`, typeColor)} ${chalk.gray(`(${components.length} ${this.t('ui.components')})`)}`,
                         value: groupKey,
-                        short: `Gruppe: ${groupName}`
+                        short: `${this.t('ui.group')}: ${groupName}`
                     });
                 }
 
-                // Komponenten hinzufügen
+                // Add components
                 components.forEach((comp, index) => {
                     const isGrouped = groupName !== '_ungrouped';
                     const prefix = isGrouped ? '  ' : '';
@@ -315,41 +418,41 @@ class ComponentBuilder {
             });
         });
 
-        // Inquirer Prompt für Komponentenauswahl
+        // Inquirer prompt for component selection
         const { selectedItems } = await inquirer.prompt([{
             type: 'checkbox',
             name: 'selectedItems',
-            message: 'Schritt 3/3: Welche Komponenten möchtest du verwenden?',
+            message: this.t('prompts.componentsPrompt'),
             choices: choices,
-            pageSize: 15, // Mehr Items pro Seite anzeigen
+            pageSize: 15, // Show more items per page
             validate: (input) => {
-                return input.length > 0 ? true : 'Bitte wähle mindestens eine Komponente oder Gruppe aus.';
+                return input.length > 0 ? true : this.t('prompts.componentsValidation');
             }
         }]);
 
-        // Ausgewählte Items verarbeiten
+        // Process selected items
         const finalComponents = [];
-        let componentIndex = 0; // Eindeutiger Index für jede Komponente
+        let componentIndex = 0; // Unique index for each component
 
         selectedItems.forEach(itemKey => {
             if (itemKey.startsWith('group_')) {
-                // Gruppe ausgewählt - alle Komponenten hinzufügen
+                // Group selected - add all components
                 const components = groupMap.get(itemKey);
                 if (components) {
                     components.forEach(comp => {
-                        // Jede Komponente bekommt einen eindeutigen Index
+                        // Each component gets a unique index
                         finalComponents.push({
                             ...comp,
                             _uniqueId: componentIndex++
                         });
                     });
-                    console.log(`✅ Gruppe ausgewählt: ${chalk.green(components.length)} Komponenten hinzugefügt`);
+                    console.log(this.t('messages.groupSelected', { count: chalk.green(components.length) }));
                 }
             } else if (itemKey.startsWith('comp_')) {
-                // Einzelne Komponente ausgewählt
+                // Single component selected
                 const comp = componentMap.get(itemKey);
                 if (comp) {
-                    // Jede Komponente bekommt einen eindeutigen Index
+                    // Each component gets a unique index
                     finalComponents.push({
                         ...comp,
                         _uniqueId: componentIndex++
@@ -358,25 +461,25 @@ class ComponentBuilder {
             }
         });
 
-        console.log(`\n🎉 ${chalk.green(finalComponents.length)} Komponenten insgesamt ausgewählt`);
+        console.log(`\n${this.t('messages.componentsSelected', { count: chalk.green(finalComponents.length) })}`);
         return finalComponents;
     }
 
-    // Bundle-Option abfragen
+    // Ask for bundle option
     async askForBundle() {
         const { bundle } = await inquirer.prompt([{
             type: 'confirm',
             name: 'bundle',
-            message: 'Möchtest du die Dateien nach Typ bündeln?',
+            message: this.t('prompts.bundlePrompt'),
             default: false
         }]);
 
         return bundle;
     }
 
-    // Dateien generieren
+    // Generate files
     generateFiles(selectedComponents, bundle = false) {
-        // Dist-Ordner erstellen falls nicht vorhanden
+        // Create dist folder if it doesn't exist
         if (!fs.existsSync(this.distDir)) {
             fs.mkdirSync(this.distDir);
         }
@@ -388,12 +491,12 @@ class ComponentBuilder {
         }
     }
 
-    // Separate Dateien erstellen
+    // Create separate files
     generateSeparateFiles(components) {
         const generatedFiles = [];
 
         components.forEach(comp => {
-            // Eindeutigen Dateinamen erstellen (mit Index falls identische Titel)
+            // Create unique filename (with index if identical titles)
             const uniqueFileName = comp._uniqueId !== undefined 
                 ? `${comp.title.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}-${comp._uniqueId}.${comp.type}`
                 : this.generateFileName(comp.title, comp.type);
@@ -404,15 +507,15 @@ class ComponentBuilder {
             generatedFiles.push(uniqueFileName);
         });
 
-        console.log('\n✅ Separate Dateien erstellt:');
+        console.log(`\n${this.t('messages.separateFilesCreated')}`);
         generatedFiles.forEach(file => console.log(`   📄 ${file}`));
     }
 
-    // Gebündelte Dateien erstellen
+    // Create bundled files
     generateBundledFiles(components) {
         const typeGroups = {};
         
-        // Nach Typ gruppieren
+        // Group by type
         components.forEach(comp => {
             if (!typeGroups[comp.type]) {
                 typeGroups[comp.type] = [];
@@ -422,12 +525,12 @@ class ComponentBuilder {
 
         const generatedFiles = [];
 
-        // Für jeden Typ eine Datei erstellen
+        // Create a file for each type
         Object.entries(typeGroups).forEach(([type, comps]) => {
             const fileName = `bundle.${type}`;
             const filePath = path.join(this.distDir, fileName);
             
-            // Inhalte kombinieren mit Kommentaren (auch identische Komponenten)
+            // Combine contents with comments (including identical components)
             const bundledContent = comps.map(comp => 
                 `/* ${comp.title} - ${comp.description} ${comp._uniqueId !== undefined ? `(ID: ${comp._uniqueId})` : ''} */\n${comp.content}`
             ).join('\n\n');
@@ -436,11 +539,11 @@ class ComponentBuilder {
             generatedFiles.push(fileName);
         });
 
-        console.log('\n✅ Gebündelte Dateien erstellt:');
+        console.log(`\n${this.t('messages.bundledFilesCreated')}`);
         generatedFiles.forEach(file => console.log(`   📦 ${file}`));
     }
 
-    // Dateiname generieren
+    // Generate filename
     generateFileName(title, type) {
         const sanitized = title.toLowerCase()
             .replace(/[^a-z0-9\s-]/g, '')
@@ -450,11 +553,11 @@ class ComponentBuilder {
         return `${sanitized}.${type}`;
     }
 
-    // Verfügbare Komponenten auflisten
+    // List available components
     listComponents() {
         if (!this.loadComponents()) return;
 
-        console.log('\n📋 Verfügbare Komponenten:');
+        console.log(`\n${this.t('list.availableComponents')}`);
         console.log('=' .repeat(50));
 
         const types = this.getAvailableTypes();
@@ -464,7 +567,7 @@ class ComponentBuilder {
             
             const compsOfType = this.components.filter(comp => comp.type === type);
             
-            // Nach Gruppen organisieren
+            // Organize by groups
             const grouped = {};
             compsOfType.forEach(comp => {
                 const group = comp.group || '_ungrouped';
@@ -485,46 +588,49 @@ class ComponentBuilder {
             });
         });
 
-        console.log(`\n📊 Gesamt: ${chalk.cyan(this.components.length.toString())} Komponenten in ${chalk.cyan(types.length.toString())} Kategorien`);
+        console.log(`\n${this.t('list.totalStats', { 
+            components: chalk.cyan(this.components.length.toString()), 
+            categories: chalk.cyan(types.length.toString()) 
+        })}`);
         
-        // Gruppenzählung
+        // Group count
         const totalGroups = new Set();
         this.components.forEach(comp => {
             if (comp.group) totalGroups.add(`${comp.type}:${comp.group}`);
         });
         
         if (totalGroups.size > 0) {
-            console.log(`🗂️  ${chalk.cyan(totalGroups.size.toString())} Gruppen verfügbar`);
+            console.log(this.t('list.groupsAvailable', { count: chalk.cyan(totalGroups.size.toString()) }));
         }
         
-        // Konfigurationshilfe
-        console.log(`\n⚙️  Konfiguration: ${chalk.cyan('config.json')} bearbeiten um Farben anzupassen`);
+        // Configuration help
+        console.log(`\n${this.t('list.configHelp', { file: chalk.cyan('config.json') })}`);
     }
 
-    // Beispielkomponenten erstellen
+    // Initialize project
     initProject() {
-        console.log('🚀 Initialisiere Projekt...');
+        console.log(this.t('commands.initProject'));
         
-        // Components-Ordner erstellen
+        // Create components folder
         if (!fs.existsSync(this.componentsDir)) {
             fs.mkdirSync(this.componentsDir);
-            console.log('✅ components/ Ordner erstellt');
+            console.log(this.t('commands.foldersCreated', { folder: 'components/' }));
         }
 
-        // Dist-Ordner erstellen
+        // Create dist folder
         if (!fs.existsSync(this.distDir)) {
             fs.mkdirSync(this.distDir);
-            console.log('✅ dist/ Ordner erstellt');
+            console.log(this.t('commands.foldersCreated', { folder: 'dist/' }));
         }
 
-        console.log('✅ Projekt initialisiert! Beispielkomponenten sind bereits vorhanden.');
-        console.log('\n🎯 Nächste Schritte:');
+        console.log(this.t('messages.projectInitialized'));
+        console.log(`\n${this.t('messages.nextSteps')}`);
         console.log('   npm install');
         console.log('   npm start');
-        console.log(`\n⚙️  Tipp: Bearbeite ${chalk.cyan('config.json')} um Farben und Steuerung anzupassen`);
+        console.log(`\n${this.t('messages.configTip', { file: chalk.cyan('config.json') })}`);
     }
 
-    // ASCII Art anzeigen
+    // Show ASCII Art banner
     showBanner() {
         console.log(chalk.cyan(`
   __    __                  __            __    __          ______   __        ______ 
@@ -537,21 +643,21 @@ $$ |$$  \\ $$ \\__$$ |$$ \\__$$ |$$$$$$$$/  $$ /$$  |       $$ \\__/  |$$ |_____
 $$ | $$  |$$    $$/ $$    $$ |$$       |$$ |  $$ |       $$    $$/ $$       |/ $$   |
 $$/   $$/  $$$$$$/   $$$$$$$/  $$$$$$$/ $$/   $$/         $$$$$$/  $$$$$$$$/ $$$$$$/ 
         `));
-        console.log(chalk.gray('               Your Private Component Libary Bundler'));
-        console.log(chalk.gray('                      Created by @knutpfr'));
-        console.log(chalk.gray('               https://github.com/knutpfr/KodeX-CLI\n'));
+        console.log(chalk.gray(`               ${this.t('banner.tagline')}`));
+        console.log(chalk.gray(`                      ${this.t('banner.creator')}`));
+        console.log(chalk.gray(`               ${this.t('banner.github')}\n`));
     }
 
-    // Hauptfunktion
+    // Main function
     async run() {
         const args = process.argv.slice(2);
         const command = args[0] || 'build';
 
-        // Banner nur bei 'start' oder 'build' anzeigen
+        // Show banner only for 'start' or 'build'
         if (command === 'build' || args.length === 0) {
             this.showBanner();
         } else {
-            console.log(chalk.cyan('🔧 CLI Component Builder'));
+            console.log(chalk.cyan(this.t('banner.title')));
             console.log('=' .repeat(30));
         }
 
@@ -565,11 +671,12 @@ $$/   $$/  $$$$$$/   $$$$$$$/  $$$$$$$/ $$/   $$/         $$$$$$/  $$$$$$$$/ $$$
                 break;
             
             case 'config':
-                console.log(`\n⚙️  Konfigurationsdatei: ${chalk.cyan('config.json')}`);
-                console.log('\n📝 Verfügbare Einstellungen:');
-                console.log('   • ui.typeColors - Farben für verschiedene Dateitypen');
-                console.log('   • ui.colors - Allgemeine UI-Farben');
-                console.log('   • output - Ausgabeeinstellungen');
+                console.log(`\n${this.t('commands.configFile', { file: chalk.cyan('config.json') })}`);
+                console.log(`\n${this.t('commands.availableSettings')}`);
+                console.log(this.t('commands.typeColorsSetting'));
+                console.log(this.t('commands.generalColorsSetting'));
+                console.log(this.t('commands.outputSetting'));
+                console.log(this.t('commands.languageSetting'));
                 break;
             
             case 'build':
@@ -578,25 +685,25 @@ $$/   $$/  $$$$$$/   $$$$$$$/  $$$$$$$/ $$/   $$/         $$$$$$/  $$$$$$$$/ $$$
 
                 const selected = await this.selectComponents();
                 if (selected.length === 0) {
-                    console.log('\n❌ Keine Komponenten ausgewählt');
+                    console.log(`\n${this.t('errors.noComponentsSelected')}`);
                     return;
                 }
 
                 const bundle = await this.askForBundle();
                 this.generateFiles(selected, bundle);
 
-                console.log(`\n🎉 ${chalk.green(selected.length.toString())} Komponenten erfolgreich generiert!`);
-                console.log(`📁 Dateien befinden sich in: ${chalk.cyan(this.distDir)}`);
+                console.log(`\n${this.t('messages.componentsGenerated', { count: chalk.green(selected.length.toString()) })}`);
+                console.log(this.t('messages.filesLocation', { dir: chalk.cyan(this.distDir) }));
                 break;
         }
     }
 }
 
-// CLI ausführen
+// Run CLI
 if (require.main === module) {
     const builder = new ComponentBuilder();
     builder.run().catch(error => {
-        console.error('❌ Fehler:', error.message);
+        console.error(`${builder.t ? builder.t('errors.error') : '❌ Error:'} ${error.message}`);
         process.exit(1);
     });
 }

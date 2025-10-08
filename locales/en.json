@@ -1,0 +1,77 @@
+{
+  "errors": {
+    "configLoadFailed": "⚠️  Error loading configuration, using default values",
+    "componentsNotFound": "❌ components/ folder not found!",
+    "noComponentsFound": "❌ No JSON components found!",
+    "componentLoadFailed": "❌ Error loading components:",
+    "noComponentsAvailable": "❌ No components available",
+    "noComponentsSelected": "❌ No components selected",
+    "error": "❌ Error:"
+  },
+  "messages": {
+    "categoriesDetected": "📊 {count} categories detected: {types}",
+    "componentsLoaded": "📦 {count} components loaded in total",
+    "groupsFound": "✨ {count} groups found",
+    "groupSelected": "✅ Group selected: {count} components added",
+    "componentsSelected": "🎉 {count} components selected in total",
+    "componentsGenerated": "🎉 {count} components successfully generated!",
+    "filesLocation": "📁 Files are located in: {dir}",
+    "separateFilesCreated": "✅ Separate files created:",
+    "bundledFilesCreated": "✅ Bundled files created:",
+    "projectInitialized": "✅ Project initialized! Example components are already available.",
+    "nextSteps": "🎯 Next steps:",
+    "configTip": "⚙️  Tip: Edit {file} to customize colors and controls"
+  },
+  "prompts": {
+    "categoriesPrompt": "Step 1/3: Which categories would you like to select?",
+    "categoriesValidation": "Please select at least one category.",
+    "groupsPrompt": "Step 2/3: Which groups would you like to include?",
+    "groupsValidation": "Please select at least one group.",
+    "componentsPrompt": "Step 3/3: Which components would you like to use?",
+    "componentsValidation": "Please select at least one component or group.",
+    "bundlePrompt": "Would you like to bundle the files by type?",
+    "allGroups": "✓ Include all groups"
+  },
+  "ui": {
+    "controls": {
+      "title": "Controls",
+      "space": "Space",
+      "enter": "Enter", 
+      "ctrlc": "Ctrl+C",
+      "arrows": "↑↓",
+      "selectElement": "Select/deselect element",
+      "confirmSelection": "Confirm selection", 
+      "cancel": "Cancel",
+      "navigate": "Navigate"
+    },
+    "components": "components",
+    "component": "component",
+    "group": "Group",
+    "categories": "categories",
+    "groups": "groups",
+    "available": "available",
+    "total": "Total"
+  },
+  "commands": {
+    "initProject": "🚀 Initializing project...",
+    "foldersCreated": "✅ {folder} folder created",
+    "configFile": "⚙️  Configuration file: {file}",
+    "availableSettings": "📝 Available settings:",
+    "typeColorsSetting": "   • ui.typeColors - Colors for different file types",
+    "generalColorsSetting": "   • ui.colors - General UI colors",
+    "outputSetting": "   • output - Output settings",
+    "languageSetting": "   • language - Interface language (en/de)"
+  },
+  "list": {
+    "availableComponents": "📋 Available components:",
+    "totalStats": "📊 Total: {components} components in {categories} categories",
+    "groupsAvailable": "🗂️  {count} groups available",
+    "configHelp": "⚙️  Configuration: Edit {file} to customize colors"
+  },
+  "banner": {
+    "tagline": "Your Private Component Library Bundler",
+    "creator": "Created by @knutpfr",
+    "github": "https://github.com/knutpfr/KodeX-CLI",
+    "title": "🔧 CLI Component Builder"
+  }
+}

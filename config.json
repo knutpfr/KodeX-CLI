@@ -1,10 +1,17 @@
 {
+  "language": "en",
   "ui": {
     "colors": {
       "confirm": "#00ff00",
       "cancel": "#ff0000",
       "selected": "#00bcd4",
-      "unselected": "#666666"
+      "unselected": "#666666",
+      "primary": "#00bcd4",
+      "secondary": "#ffffff",
+      "success": "#00ff00",
+      "error": "#ff0000",
+      "warning": "#ffa500",
+      "info": "#0080ff"
     },
     "typeColors": {
       "html": "#e34c26",

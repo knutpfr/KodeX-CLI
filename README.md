@@ -1,53 +1,50 @@
 # KodeX CLI 🚀
 
-Ein intelligenter CLI-Tool zum Verwalten und Bündeln deiner Code-Komponenten. Organisiere HTML, CSS und JavaScript Snippets in einer strukturierten JSON-basierten Bibliothek und generiere daraus Bundle-Dateien oder separate Komponenten.
+A smart CLI tool for managing and bundling your code components. Organize HTML, CSS and JavaScript snippets in a structured JSON-based library and generate bundle files or separate components.
 
-**Entwickelt von [@knutpfr](https://github.com/knutpfr)**  
+**Developed by [@knutpfr](https://github.com/knutpfr)**  
 **Repository: [KodeX-CLI](https://github.com/knutpfr/KodeX-CLI)**
 
 ## ✨ Features
 
-### 🎯 **Komponentenverwaltung**
-- **JSON-basierte Komponenten** - Einfache Struktur für Code-Snippets
-- **Multi-Language Support** - HTML, CSS, JavaScript (erweiterbar)
-- **Gruppierung** - Optionale Kategorisierung von Komponenten
-- **Beispiel-Template** - Vorlage für neue Komponenten
+### 🎯 **Component Management**
+- **JSON-based components** - Simple structure for code snippets
+- **Multi-language Support** - HTML, CSS, JavaScript (expandable)
+- **Grouping** - Optional categorization of components
+- **Example template** - Template for new components
 
-<<<<<<< HEAD
-### 🎨 **Professionelle CLI-Navigation**
-- **Pfeiltasten-Navigation** - Intuitive Bedienung wie ein echtes CLI-Tool
-- **Checkbox-Interface** - Mehrfachauswahl mit Space-Taste
-- **Drei-Schritt-Prozess** - Kategorien → Gruppen → Komponenten
-- **Intelligente Gruppierung** - Eine Gruppe auswählen = alle Komponenten
-=======
-## Screenshot
+### 🌍 **Internationalization**
+- **English/German Support** - Switch language via config.json
+- **Configurable interface** - All UI text is translatable
+- **Default: English** - Clean English interface by default
+- **Easy language switching** - Just change one setting
 
-<img width="720" height="557" alt="grafik" src="https://github.com/user-attachments/assets/63623094-89b1-458d-889a-cc57da008388" />
+### 🎨 **Professional CLI Navigation**
+- **Arrow key navigation** - Intuitive operation like a real CLI tool
+- **Checkbox interface** - Multiple selection with Space key
+- **Three-step process** - Categories → Groups → Components
+- **Smart grouping** - Select one group = all components
 
-
-## Installation
->>>>>>> 3b24f11b60abce96da39dc4a45afcc4b82bc022d
-
-### 📦 **Flexible Ausgabe**
-- **Bundle-Modus** - Alle Dateien gleichen Typs in einer Datei
-- **Separate Dateien** - Jede Komponente als eigene Datei
-- **Duplikat-Support** - Alle ausgewählten Komponenten werden berücksichtigt
-- **Eindeutige Dateinamen** - Automatische ID-Vergabe bei Duplikaten
+### 📦 **Flexible Output**
+- **Bundle mode** - All files of the same type in one file
+- **Separate files** - Each component as its own file
+- **Duplicate support** - All selected components are considered
+- **Unique filenames** - Automatic ID assignment for duplicates
 
 ### 🛠️ **Developer Experience**
-- **Farbige Ausgabe** - Typ-spezifische Farbkodierung
-- **Benutzerfreundliche Steuerung** - Klare Anweisungen und Feedback
-- **Fehlerbehandlung** - Robuste Validierung und Error Messages
-- **Konfigurierbar** - Anpassbare Farben über config.json
+- **Colorized output** - Type-specific color coding
+- **User-friendly controls** - Clear instructions and feedback
+- **Error handling** - Robust validation and error messages
+- **Configurable** - Customizable colors and language via config.json
 
-## 📋 Voraussetzungen
+## 📋 Prerequisites
 
-- **Node.js** (Version 14 oder höher)
-- **npm** (normalerweise mit Node.js installiert)
+- **Node.js** (Version 14 or higher)
+- **npm** (usually installed with Node.js)
 
 ## 🚀 Installation & Setup
 
-### 1. Repository klonen
+### 1. Clone repository
 ```bash
 git clone https://github.com/knutpfr/KodeX-CLI.git
 cd KodeX-CLI
@@ -87,11 +84,17 @@ npm start  # Startet mit Demo-Komponenten
    - Benenne sie um (z.B. `my-button.json`)
    - Bearbeite die JSON-Struktur
 
-### Farben anpassen
-Bearbeite `config.json` um die Farben anzupassen:
+### Customize colors and language
+Edit `config.json` to customize colors and language:
 ```json
 {
+  "language": "en",
   "ui": {
+    "colors": {
+      "primary": "#00bcd4",
+      "success": "#00ff00",
+      "error": "#ff0000"
+    },
     "typeColors": {
       "html": "#e34c26",
       "css": "#1572b6", 
@@ -102,53 +105,59 @@ Bearbeite `config.json` um die Farben anzupassen:
 }
 ```
 
-## Komponenten-Schema
+### Language Configuration
+- **English (default)**: `"language": "en"`
+- **German**: `"language": "de"`
 
-Jede JSON-Datei im `components/` Ordner muss folgendes Schema haben:
+The interface language will automatically switch based on this setting.
+
+## Component Schema
+
+Each JSON file in the `components/` folder must have the following schema:
 
 ```json
 {
-  "title": "Komponenten-Titel",
-  "description": "Beschreibung der Komponente",
+  "title": "Component Title",
+  "description": "Description of the component",
   "type": "html|css|js|...",
-  "content": "Der eigentliche Code-Inhalt"
+  "content": "The actual code content"
 }
 ```
 
-## Eigene Komponenten hinzufügen
+## Adding Your Own Components
 
-### 1. Neue JSON-Datei erstellen
-Erstelle eine neue `.json` Datei im `components/` Ordner:
+### 1. Create new JSON file
+Create a new `.json` file in the `components/` folder:
 
 ```bash
-# Beispiel: components/my-component.json
+# Example: components/my-component.json
 ```
 
-### 2. Schema verwenden
+### 2. Use schema
 ```json
 {
-  "title": "Meine Komponente",
-  "description": "Eine kurze Beschreibung was die Komponente macht",
+  "title": "My Component",
+  "description": "A short description of what the component does",
   "type": "css",
   "content": ".my-class {\n  color: blue;\n  font-size: 16px;\n}"
 }
 ```
 
-### 3. Verfügbare Typen
-- `html` - HTML-Komponenten
-- `css` - CSS-Styles und Klassen
-- `js` - JavaScript-Code
-- `typescript` - TypeScript-Code
-- `json` - JSON-Konfigurationen
-- `xml` - XML-Strukturen
-- `php` - PHP-Code
-- `python` - Python-Code
-- Oder jeden anderen Typ - wird automatisch erkannt!
+### 3. Available types
+- `html` - HTML components
+- `css` - CSS styles and classes
+- `js` - JavaScript code
+- `typescript` - TypeScript code
+- `json` - JSON configurations
+- `xml` - XML structures
+- `php` - PHP code
+- `python` - Python code
+- Or any other type - will be automatically recognized!
 
-### 4. Automatische Erkennung
-Das CLI erkennt neue Komponenten automatisch beim nächsten Start. Keine Neukonfiguration notwendig!
+### 4. Automatic detection
+The CLI automatically recognizes new components on next start. No reconfiguration necessary!
 
-### 5. Tipps für den Content
+### 5. Tips for content
 ```json
 {
   "content": "Mehrzeiliger Content\nmit \\n für Zeilenumbrüche\nund \\t für Tabs"
@@ -170,9 +179,9 @@ CLI-Tool/
 └── README.md
 ```
 
-## Beispiel-Workflow
+## Example Workflow
 
-1. **Neue Komponente hinzufügen:**
+1. **Add new component:**
    ```json
    // components/button.json
    {
@@ -183,41 +192,41 @@ CLI-Tool/
    }
    ```
 
-2. **CLI ausführen:**
+2. **Run CLI:**
    ```bash
    npm start
    ```
 
-3. **Komponenten auswählen** (Multi-Select)
+3. **Select components** (Multi-Select)
 
-4. **Bundle-Option wählen**
+4. **Choose bundle option**
 
-5. **Generierte Dateien** im `dist/` Ordner verwenden
+5. **Use generated files** from `dist/` folder
 
-## CLI-Befehle
+## CLI Commands
 
-| Befehl | Beschreibung |
-|--------|-------------|
-| `npm start` | Komponenten-Generator starten |
-| `npm run list` | Alle verfügbaren Komponenten anzeigen |
-| `npm run config` | Konfigurationshilfe anzeigen |
-| `node cli.js init` | Projekt initialisieren |
-| `node cli.js build` | Komponenten erstellen (Standard) |
+| Command | Description |
+|---------|-------------|
+| `npm start` | Start component generator |
+| `npm run list` | Show all available components |
+| `npm run config` | Show configuration help |
+| `node cli.js init` | Initialize project |
+| `node cli.js build` | Create components (default) |
 
-## Steuerung
+## Controls
 
-### Tastenkombinationen
+### Key combinations
 - **↑↓** - Navigation
-- **Space/Enter** - Auswahl/Abwahl
-- **Enter** - Bestätigen (grün markiert)
-- **Esc/Backspace/Delete** - Zurück/Abbrechen (rot markiert)
+- **Space/Enter** - Select/Deselect
+- **Enter** - Confirm (marked green)
+- **Esc/Backspace/Delete** - Back/Cancel (marked red)
 
-### Visuelle Hinweise
-- **Kategorien** werden in typspezifischen Farben angezeigt
-- **HTML** - Orange-Rot (#e34c26)
-- **CSS** - Blau (#1572b6)
-- **JavaScript** - Gelb (#f7df1e)
-- **TypeScript** - Blau (#3178c6)
+### Visual hints
+- **Categories** are displayed in type-specific colors
+- **HTML** - Orange-Red (#e34c26)
+- **CSS** - Blue (#1572b6)
+- **JavaScript** - Yellow (#f7df1e)
+- **TypeScript** - Blue (#3178c6)
 
 ## Entwicklung
 
