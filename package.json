@@ -1,6 +1,6 @@
 {
   "name": "cli-component-builder",
-  "version": "1.0.0",
+  "version": "0.3.0",
   "description": "Node.js CLI tool for generating boilerplate code from JSON component files",
   "main": "cli.js",
   "scripts": {
@@ -8,7 +8,8 @@
     "build": "node cli.js build",
     "list": "node cli.js list",
     "init": "node cli.js init",
-    "config": "node cli.js config"
+    "config": "node cli.js config",
+    "version": "node cli.js version"
   },
   "keywords": [
     "cli",

@@ -1,5 +1,7 @@
 # KodeX CLI 🚀
 
+**Version: 0.3.0**
+
 A smart CLI tool for managing and bundling your code components. Organize HTML, CSS and JavaScript snippets in a structured JSON-based library and generate bundle files or separate components.
 
 **Developed by [@knutpfr](https://github.com/knutpfr)**  
@@ -210,8 +212,10 @@ CLI-Tool/
 | `npm start` | Start component generator |
 | `npm run list` | Show all available components |
 | `npm run config` | Show configuration help |
+| `npm run version` | Show version information |
 | `node cli.js init` | Initialize project |
 | `node cli.js build` | Create components (default) |
+| `node cli.js --version` | Show version information |
 
 ## Controls
 
@@ -228,13 +232,26 @@ CLI-Tool/
 - **JavaScript** - Yellow (#f7df1e)
 - **TypeScript** - Blue (#3178c6)
 
-## Entwicklung
+## Development
 
-Das CLI erkennt automatisch:
-- Neue `.json` Dateien im `components/` Ordner
-- Verfügbare Dateitypen basierend auf dem `type` Feld
-- Erstellt entsprechende Dateiendungen (`.html`, `.css`, `.js`, etc.)
+The CLI automatically recognizes:
+- New `.json` files in the `components/` folder
+- Available file types based on the `type` field
+- Creates corresponding file extensions (`.html`, `.css`, `.js`, etc.)
 
-## Lizenz
+## Release Notes
+
+### Version 0.3.0 🌍
+- **🌍 Internationalization Support**: Full English/German interface
+- **🎨 Enhanced Controls Box**: Auto-formatting controls display
+- **⚙️ Extended Configuration**: New color and language options
+- **🚀 Improved User Experience**: Better visual feedback and navigation
+- **📦 Clean Code Structure**: Modular translation system
+
+### Previous Versions
+- **0.2.x**: Enhanced component management and bundling
+- **0.1.x**: Initial CLI tool with basic functionality
+
+## License
 
 MIT

@@ -5,6 +5,8 @@ const path = require('path');
 const inquirer = require('inquirer');
 const chalk = require('chalk');
 
+const VERSION = '0.3.0';
+
 class ComponentBuilder {
     constructor() {
         this.componentsDir = path.join(process.cwd(), 'components');
@@ -662,6 +664,12 @@ $$/   $$/  $$$$$$/   $$$$$$$/  $$$$$$$/ $$/   $$/         $$$$$$/  $$$$$$$$/ $$$
         }
 
         switch (command) {
+            case 'version':
+            case '--version':
+            case '-v':
+                console.log(`KodeX CLI v${VERSION}`);
+                break;
+                
             case 'init':
                 this.initProject();
                 break;
